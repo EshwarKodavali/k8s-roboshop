@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: roboshop
+  # these are replica set labels
+  labels:
+    component: frontend
+    project: roboshop
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    # these labels are used to select pods
+    matchLabels:
+      component: frontend
+      project: roboshop
+      tier: backend
+  # pod definition
+  template:
+    metadata:
+      labels:
+        component: frontend
+        project: roboshop
+        tier: backend
+    spec:
+      containers:
+      - name: frontend
+        image: eshwarkodavali/frontend:v1
+        envFrom:
+        - configMapRef:
+            name: frontend
+        ports:
+        - name: liveness-port
+          containerPort: 80
+        imagePullPolicy: Always
+        readinessProbe:
+          httpGet:
+            path: / # Or your specific readiness check endpoint
+            port: liveness-port
+          periodSeconds: 15 # How often to perform the probe
+          failureThreshold: 1 # Number of consecutive failures before marking as unready
+        livenessProbe:
+          httpGet:
+            path: / # Or your specific readiness check endpoint
+            port: liveness-port
+          periodSeconds: 15 # How often to perform the probe
+          failureThreshold: 1 # Number of consecutive failures before marking as unready
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: roboshop
+spec:
+  type: LoadBalancer
+  selector:
+    component: frontend
+    project: roboshop
+    tier: backend
+  ports:
+    - protocol: TCP
+      port: 80 # service port
+      targetPort: 80 # container port
+      nodePort: 31000

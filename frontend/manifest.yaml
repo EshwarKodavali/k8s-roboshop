@@ -7,7 +7,7 @@ metadata:
   labels:
     component: frontend
     project: roboshop
-    tier: backend
+    tier: frontend
 spec:
   replicas: 1
   selector:
@@ -15,21 +15,18 @@ spec:
     matchLabels:
       component: frontend
       project: roboshop
-      tier: backend
+      tier: frontend
   # pod definition
   template:
     metadata:
       labels:
         component: frontend
         project: roboshop
-        tier: backend
+        tier: frontend
     spec:
       containers:
       - name: frontend
         image: eshwarkodavali/frontend:v1
-        envFrom:
-        - configMapRef:
-            name: frontend
         ports:
         - name: liveness-port
           containerPort: 80
@@ -57,9 +54,8 @@ spec:
   selector:
     component: frontend
     project: roboshop
-    tier: backend
+    tier: frontend
   ports:
     - protocol: TCP
       port: 80 # service port
       targetPort: 80 # container port
-      nodePort: 31000
